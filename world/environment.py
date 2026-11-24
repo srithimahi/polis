@@ -1,5 +1,6 @@
 from world.tile import Tile, Terrain
 from agents.agent import Agent
+from agents.actions import Action
 
 class Environment:
     def __init__(self, width: int, height: int):
@@ -53,3 +54,15 @@ class Environment:
                     walkable_tiles.append(tile)
 
         return walkable_tiles
+
+    def move_agent(self, agent: Agent, action: Action) -> bool:
+        dx, dy = action.value
+        new_x = agent.x + dx
+        new_y = agent.y + dy
+
+        if agent.health > 0:
+            if self.is_walkable(new_x, new_y):
+                agent.x = new_x
+                agent.y = new_y
+                return True
+        return False
