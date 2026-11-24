@@ -3,6 +3,8 @@ import random
 from world.generator import TerrainGenerator
 from world.environment import Environment
 from world.tile import Terrain
+from agents.agent import Agent
+from simulation.engine import Simulation
 
 TERRAIN_COLORS = {
     Terrain.GRASS: (181, 205, 150),
@@ -23,6 +25,9 @@ class Renderer:
         pygame.display.set_caption("heylo")
 
         self.clock = pygame.time.Clock()
+        self.simulation = Simulation(world)
+        self.accumulator = 0.0
+        self.tick_interval = 0.25
 
     def draw_tile(self, tile):
         color = TERRAIN_COLORS[tile.terrain]
@@ -45,6 +50,13 @@ class Renderer:
         running = True
 
         while running:
+            dt = self.clock.tick(60) / 1000.0
+            self.accumulator += dt
+
+            while self.accumulator >= self.tick_interval:
+                self.simulation.tick()
+                self.accumulator -= self.tick_interval
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -58,8 +70,53 @@ class Renderer:
                         print(f"Generated world with seed: {seed}")
 
             self.draw_world()
+            self.draw_agents()
+
             pygame.display.flip()
-            self.clock.tick(60)
         pygame.quit()
+
+    def draw_agent(self, agent: Agent):
+        center_x = agent.x * self.tile_size + self.tile_size // 2
+        center_y = agent.y * self.tile_size + self.tile_size // 2
+
+        pygame.draw.circle(
+            self.screen,
+            (160, 132, 191),
+            (center_x, center_y),
+            self.tile_size // 3
+        )
+
+        bar_x = agent.x * self.tile_size + 3
+        bar_y = max(0, agent.y * self.tile_size - 18)
+
+        self.draw_bar(
+            bar_x, bar_y,
+            agent.health, (78, 152, 89)
+        )
+
+        self.draw_bar(
+            bar_x, bar_y + 6,
+            agent.energy, (204, 42, 217)
+        )
+
+        self.draw_bar(
+            bar_x, bar_y + 12,
+            agent.hunger, (232, 41, 126)
+        )
+
+
+    def draw_agents(self):
+        for agent in self.world.agents:
+            self.draw_agent(agent)
+
+    def draw_bar(self, x, y, value, color):
+        width = self.tile_size - 6
+        height = 4
+
+        ratio = value / 10.0
+
+        pygame.draw.rect(self.screen, (60, 60, 60), (x, y, width, height))
+
+        pygame.draw.rect(self.screen, color, (x, y, int(width * ratio), height))
 
         
