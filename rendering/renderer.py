@@ -1,5 +1,6 @@
 import pygame
-
+import random
+from world.generator import TerrainGenerator
 from world.environment import Environment
 from world.tile import Terrain
 
@@ -11,7 +12,7 @@ TERRAIN_COLORS = {
 }
 
 class Renderer:
-    def __init__(self, world: Environment, tile_size: int = 32):
+    def __init__(self, world: Environment, tile_size: int = 40):
         self.world = world
         self.tile_size = tile_size
 
@@ -48,8 +49,17 @@ class Renderer:
                 if event.type == pygame.QUIT:
                     running = False
 
-            self.draw_world()
+                elif event.type == pygame.KEYDOWN:
+                    if event.type == pygame.K_r:
+                        seed = random.randint(1, 1000000)
+                        generator = TerrainGenerator(seed=seed)
+                        generator.generate(self.world)
 
+                        print(f"Generated world with seed: {seed}")
+
+            self.draw_world()
             pygame.display.flip()
             self.clock.tick(60)
-        pygame.quit()    
+        pygame.quit()
+
+        
