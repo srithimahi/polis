@@ -66,3 +66,17 @@ class Environment:
                 agent.y = new_y
                 return True
         return False
+
+    def eat(self, agent: Agent) -> bool:
+        if agent.health <= 0:
+            return False
+
+        tile = self.get_tile(agent.x, agent.y)
+
+        if tile is None or tile.food <= 0:
+            return False
+
+        tile.food -= 1
+        agent.hunger = max(0.0, agent.hunger - 3.0)
+
+        return True

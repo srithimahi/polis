@@ -1,12 +1,14 @@
 from perlin_noise import PerlinNoise
 from world.environment import Environment
 from world.tile import Terrain
+import random
 
 class TerrainGenerator:
     def __init__(self, seed: int = 42):
         self.seed = seed
         self.elevation_noise = PerlinNoise(octaves=3, seed=seed)
         self.vegetation_noise = PerlinNoise(octaves=6, seed=seed+1)
+        self.rng = random.Random(seed)
 
     def get_elevation(self, x, y, width, height):
         return self.elevation_noise([x / width, y / height])
@@ -28,3 +30,15 @@ class TerrainGenerator:
                             tile.terrain = Terrain.TREE 
                         else:
                             tile.terrain = Terrain.GRASS
+        self.generate_resources(world)
+
+    def generate_resources(self, world: Environment):
+        self.rng.seed(self.seed)
+
+        for row in world.tiles:
+            for tile in row:
+                tile.FOOD = 0
+
+                if tile.terrain == Terrain.GRASS:
+                    if self.rng.random() < 0.15:
+                        tile.food = self.rng.randint(1, 3)

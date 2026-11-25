@@ -46,6 +46,9 @@ class Renderer:
             for tile in row:
                 self.draw_tile(tile)
 
+                if tile.food > 0:
+                    self.draw_food(tile)
+
     def run(self):
         running = True
 
@@ -116,7 +119,12 @@ class Renderer:
         ratio = value / 10.0
 
         pygame.draw.rect(self.screen, (60, 60, 60), (x, y, width, height))
-
         pygame.draw.rect(self.screen, color, (x, y, int(width * ratio), height))
+
+    def draw_food(self, tile):
+        center_x = tile.x * self.tile_size + self.tile_size // 2
+        center_y = tile.y * self.tile_size + self.tile_size // 2
+
+        pygame.draw.circle(self.screen, (202, 101, 124), (center_x, center_y), self.tile_size // 7)
 
         

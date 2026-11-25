@@ -12,3 +12,4 @@ class Tile:
     x: int
     y: int
     terrain: Terrain = Terrain.GRASS
+    food: int = 0
